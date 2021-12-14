@@ -14,24 +14,20 @@
 # limitations under the License.
 #
 
-config CHARGE_MANAGER
-    tristate "charge manager"
+config HEALTHD
+    tristate "healthd"
     depends on BATTERY_CHARGER
     select UORB
     default n
 
-if CHARGE_MANAGER
+if HEALTHD
 
-config CHARGE_MANAGER_PRIORITY
+config HEALTHD_PRIORITY
     int "task priority"
     default 100
 
-config CHARGE_MANAGER_STACKSIZE
+config HEALTHD_STACKSIZE
     int "stack size"
     default DEFAULT_TASK_STACKSIZE
 
-config CHARGE_MANAGER_PROGRAM_NAME
-    string "charge manager program name"
-    default "healthd"
-
-endif # CHARGE_MANAGER
+endif # HEALTHD
