@@ -266,6 +266,8 @@ static int read_charge_data(int sfd, struct battery_state* data,
             baterr("Error : ioctl(BATIOC_TEMPERATURE) failed: %d\n", ret);
             return ret;
         }
+
+        data->temp = manager->c_data.temp;
         break;
     case BATTERY_COULOMBS_CHANGED:
         ret = ioctl(sfd, BATIOC_COULOMBS,
