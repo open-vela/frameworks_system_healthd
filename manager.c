@@ -69,6 +69,7 @@ struct charge_manager {
     int tfd; /* tfd is returned by advertisement */
     int cnt; /* The number of charge device */
     int sfd[5]; /* File descriptor of charge device node */
+    bool charge_manager_exit;
 };
 
 /****************************************************************************
@@ -93,7 +94,7 @@ static int open_charge(struct charge_manager* manager, const char* devname)
 
     /* Open charge device node, eg:/dev/charge/batt_gauge */
 
-    sfd = open(devname, O_RDONLY);
+    sfd = open(devname, O_RDONLY | O_CLOEXEC);
     if (sfd < 0) {
         ret = -errno;
         baterr("Failed to open device:%s, ret:%d\n", devname, ret);
@@ -155,7 +156,7 @@ static int scan_charge(struct charge_manager* manager, const char* dirname)
     if (ret < 0)
         return ret;
 
-    manager->epollfd = epoll_create(2 * ret);
+    manager->epollfd = epoll_create1(EPOLL_CLOEXEC);
     if (manager->epollfd == -1) {
         ret = -errno;
         goto poll_err;
@@ -190,6 +191,18 @@ static void exit_handler(int signo)
     g_should_exit = true;
 }
 
+static void charge_manager_control(struct charge_manager* manager,
+    struct battery_state* data)
+{
+    if (data->state == 1 && !manager->charge_manager_exit) {
+        system("charge_manager &");
+        manager->charge_manager_exit = true;
+    }
+    else if (data->state == 0 && manager->charge_manager_exit) {
+        manager->charge_manager_exit = false;
+    }
+}
+
 static int read_charge_data(int sfd, struct battery_state* data,
     struct charge_manager* manager)
 {
@@ -208,6 +221,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
         }
 
         data->state = manager->c_data.status;
+        charge_manager_control(manager, data);
         break;
     case BATTERY_HEALTH_CHANGED:
         ret = ioctl(sfd, BATIOC_HEALTH,
