@@ -265,6 +265,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
                 return ret;
             }
 
+            data->curr = manager->c_data.current;
             mask &= ~BATTERY_CURRENT_CHANGED;
             continue;
         } else if (mask & BATTERY_CAPACITY_CHANGED) {
