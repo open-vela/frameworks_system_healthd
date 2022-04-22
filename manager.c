@@ -33,7 +33,6 @@
 
 #include <system/state.h>
 #include <uORB/uORB.h>
-#include <uORB/uORBTopics.h>
 
 /****************************************************************************
  * Pre-processor Definitions
