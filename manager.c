@@ -53,9 +53,9 @@ struct charge_data {
     int online;
     int voltage;
     int current;
-    int capacity;
+    b16_t capacity;
     int cellvoltage;
-    int temp;
+    b8_t temp;
     int coulombs;
 };
 
