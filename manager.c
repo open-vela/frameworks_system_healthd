@@ -194,7 +194,7 @@ static void charge_manager_control(struct charge_manager* manager,
     struct battery_state* data)
 {
     if (data->state == 1 && !manager->charge_manager_exit) {
-        system("charge_manager &");
+       //system("charge_manager &");
         manager->charge_manager_exit = true;
     } else if (data->state == 0 && manager->charge_manager_exit) {
         manager->charge_manager_exit = false;
