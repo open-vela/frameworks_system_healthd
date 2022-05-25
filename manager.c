@@ -65,7 +65,6 @@ struct charge_manager {
     unsigned int qsize; /* Queue size of advertising topic */
     int instance; /* Instance of advertising topic */
     int epollfd; /* File descriptor of epoll instance */
-    int tfd; /* tfd is returned by advertisement */
     int cnt; /* The number of charge device */
     int sfd[5]; /* File descriptor of charge device node */
     bool charge_manager_exit;
@@ -130,7 +129,6 @@ static void close_charge(struct charge_manager* manager)
         close(sfd);
     }
 
-    orb_unadvertise(manager->tfd);
     epoll_close(manager->epollfd);
 }
 
@@ -163,15 +161,6 @@ static int scan_charge(struct charge_manager* manager, const char* dirname)
 
     strcpy(devname, dirname);
     filename = devname + strlen(devname);
-
-    /* Advertise charge Topic */
-
-    manager->tfd = orb_advertise(ORB_ID(battery_state), NULL);
-    if (manager->tfd < 0) {
-        baterr("Failed to advertise topic\n");
-        epoll_close(manager->epollfd);
-        goto poll_err;
-    }
 
     while (ret--) {
         strcpy(filename, dirlist[ret]->d_name);
@@ -334,7 +323,7 @@ static void poll_charge(struct charge_manager* manager)
                     baterr("read charge data failed\n");
                 }
 
-                if (orb_publish(ORB_ID(battery_state), manager->tfd, &data) < 0) {
+                if (orb_publish_auto(ORB_ID(battery_state), NULL, &data, NULL) < 0) {
                     baterr("battery state publish failed\n");
                 }
             }
