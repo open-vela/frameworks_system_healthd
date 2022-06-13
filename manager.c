@@ -67,7 +67,6 @@ struct charge_manager {
     int epollfd; /* File descriptor of epoll instance */
     int cnt; /* The number of charge device */
     int sfd[5]; /* File descriptor of charge device node */
-    bool charge_manager_exit;
 };
 
 /****************************************************************************
@@ -179,17 +178,6 @@ static void exit_handler(int signo)
     g_should_exit = true;
 }
 
-static void charge_manager_control(struct charge_manager* manager,
-    struct battery_state* data)
-{
-    if (data->state == 1 && !manager->charge_manager_exit) {
-       //system("charge_manager &");
-        manager->charge_manager_exit = true;
-    } else if (data->state == 0 && manager->charge_manager_exit) {
-        manager->charge_manager_exit = false;
-    }
-}
-
 static int read_charge_data(int sfd, struct battery_state* data,
     struct charge_manager* manager)
 {
@@ -212,8 +200,12 @@ static int read_charge_data(int sfd, struct battery_state* data,
                 return ret;
             }
 
-            data->state = manager->c_data.status;
-            charge_manager_control(manager, data);
+            if (manager->c_data.status == 0 || manager->c_data.status == 1) {
+                data->state = manager->c_data.status;
+            } else {
+                data->state = 0;
+            }
+
             mask &= ~BATTERY_STATE_CHANGED;
             continue;
         } else if (mask & BATTERY_HEALTH_CHANGED) {
@@ -307,10 +299,9 @@ static int read_charge_data(int sfd, struct battery_state* data,
     return ret;
 }
 
-static void poll_charge(struct charge_manager* manager)
+static void poll_charge(struct charge_manager* manager, struct battery_state* data)
 {
     struct epoll_event events[manager->cnt];
-    struct battery_state data;
     int idx;
     int ret;
 
@@ -318,12 +309,12 @@ static void poll_charge(struct charge_manager* manager)
         idx = epoll_wait(manager->epollfd, events, manager->cnt, -1);
         while (idx-- > 0) {
             if (events[idx].events & POLLIN) {
-                ret = read_charge_data(events[idx].data.fd, &data, manager);
+                ret = read_charge_data(events[idx].data.fd, data, manager);
                 if (ret < 0) {
                     baterr("read charge data failed\n");
                 }
 
-                if (orb_publish_auto(ORB_ID(battery_state), NULL, &data, NULL) < 0) {
+                if (orb_publish_auto(ORB_ID(battery_state), NULL, data, NULL) < 0) {
                     baterr("battery state publish failed\n");
                 }
             }
@@ -331,9 +322,18 @@ static void poll_charge(struct charge_manager* manager)
     }
 }
 
+
+void init_charge_uorb_data(struct battery_state* data)
+{
+    data->state = 0;
+    data->level = 0;
+    data->temp = 250;
+}
+
 int main(int argc, char* argv[])
 {
     struct charge_manager manager = {};
+    struct battery_state data;
     int ret;
 
     g_should_exit = false;
@@ -341,6 +341,8 @@ int main(int argc, char* argv[])
         baterr("Failed to setup singnal handler:%s\n", strerror(errno));
         return -errno;
     }
+
+    init_charge_uorb_data(&data);
 
     /* Scan dir "/dev/charge/" and do the following */
 
@@ -350,7 +352,7 @@ int main(int argc, char* argv[])
 
     /* Monitor all fd, read and process event */
 
-    poll_charge(&manager);
+    poll_charge(&manager, &data);
 
     /* It should never come here unless ctrl+c exits */
 
