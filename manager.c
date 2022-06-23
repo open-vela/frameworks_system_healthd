@@ -94,7 +94,7 @@ static int open_charge(struct charge_manager* manager, const char* devname)
     sfd = open(devname, O_RDONLY | O_CLOEXEC);
     if (sfd < 0) {
         ret = -errno;
-        baterr("Failed to open device:%s, ret:%d\n", devname, ret);
+        baterr("err open device:%s ret:%d\n", devname, ret);
         return ret;
     }
 
@@ -107,7 +107,7 @@ static int open_charge(struct charge_manager* manager, const char* devname)
     ret = epoll_ctl(manager->epollfd, EPOLL_CTL_ADD, sfd, &ev);
     if (ret < 0) {
         ret = -errno;
-        baterr("Failed to add fd to epoll:%s, ret:%d\n", devname, ret);
+        baterr("err add epoll:%s ret:%d\n", devname, ret);
         close(sfd);
         return ret;
     }
@@ -186,7 +186,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
 
     ret = read(sfd, &mask, sizeof(uint32_t));
     if (ret < 0) {
-        baterr("Error : read mask failed: %d\n", ret);
+        baterr("read mask err:%d\n", ret);
         return ret;
     }
 
@@ -196,7 +196,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_STATE,
                 (unsigned long)(uintptr_t)&manager->c_data.status);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_STATE) failed: %d\n", ret);
+                baterr("ioctl(STATE) err:%d\n", ret);
                 return ret;
             }
 
@@ -212,7 +212,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_HEALTH,
                 (unsigned long)(uintptr_t)&manager->c_data.health);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_HEALTH) failed: %d\n", ret);
+                baterr("ioctl(HEALTH) err:%d\n", ret);
                 return ret;
             }
 
@@ -222,7 +222,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_ONLINE,
                 (unsigned long)(uintptr_t)&manager->c_data.online);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_HEALTH) failed: %d\n", ret);
+                baterr("ioctl(ONLINE) err:%d\n", ret);
                 return ret;
             }
 
@@ -232,7 +232,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_VOLTAGE,
                 (unsigned long)(uintptr_t)&manager->c_data.voltage);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_VOLTAGE) failed: %d\n", ret);
+                baterr("ioctl(VOLTAGE) err:%d\n", ret);
                 return ret;
             }
 
@@ -241,7 +241,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_CURRENT,
                 (unsigned long)(uintptr_t)&manager->c_data.current);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_CURRENT) failed: %d\n", ret);
+                baterr("ioctl(CURRENT) err:%d\n", ret);
                 return ret;
             }
 
@@ -252,7 +252,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_CAPACITY,
                 (unsigned long)(uintptr_t)&manager->c_data.capacity);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_CAPACITY) failed: %d\n", ret);
+                baterr("ioctl(CAPACITY) err:%d\n", ret);
                 return ret;
             }
 
@@ -263,7 +263,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_CELLVOLTAGE,
                 (unsigned long)(uintptr_t)&manager->c_data.cellvoltage);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_CELLVOLTAGE) failed: %d\n", ret);
+                baterr("ioctl(CELLVOLTAGE) err:%d\n", ret);
                 return ret;
             }
 
@@ -273,7 +273,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_TEMPERATURE,
                 (unsigned long)(uintptr_t)&manager->c_data.temp);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_TEMPERATURE) failed: %d\n", ret);
+                baterr("ioctl(TEMPERATURE) err:%d\n", ret);
                 return ret;
             }
 
@@ -284,14 +284,14 @@ static int read_charge_data(int sfd, struct battery_state* data,
             ret = ioctl(sfd, BATIOC_COULOMBS,
                 (unsigned long)(uintptr_t)&manager->c_data.coulombs);
             if (ret < 0) {
-                baterr("Error : ioctl(BATIOC_COULOMBS) failed: %d\n", ret);
+                baterr("ioctl(COULOMBS) err:%d\n", ret);
                 return ret;
             }
 
             mask &= ~BATTERY_COULOMBS_CHANGED;
             continue;
         } else {
-            baterr("Error : read mask failed :%ld\n", mask);
+            baterr("read mask err:%ld\n", mask);
             ret = -ENOTTY;
         }
     }
@@ -311,11 +311,11 @@ static void poll_charge(struct charge_manager* manager, struct battery_state* da
             if (events[idx].events & POLLIN) {
                 ret = read_charge_data(events[idx].data.fd, data, manager);
                 if (ret < 0) {
-                    baterr("read charge data failed\n");
+                    baterr("read charge data err\n");
                 }
 
                 if (orb_publish_auto(ORB_ID(battery_state), NULL, data, NULL) < 0) {
-                    baterr("battery state publish failed\n");
+                    baterr("battery state publish err\n");
                 }
             }
         }
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 
     g_should_exit = false;
     if (signal(SIGINT, exit_handler) == SIG_ERR) {
-        baterr("Failed to setup singnal handler:%s\n", strerror(errno));
+        baterr("err setup handler:%s\n", strerror(errno));
         return -errno;
     }
 
