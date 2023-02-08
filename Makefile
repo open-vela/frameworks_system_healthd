@@ -25,4 +25,14 @@ PRIORITY  = $(CONFIG_HEALTHD_PRIORITY)
 STACKSIZE = $(CONFIG_HEALTHD_STACKSIZE)
 MODULE    = $(CONFIG_HEALTHD)
 
+ASRCS := $(wildcard $(ASRCS))
+CSRCS := $(wildcard $(CSRCS))
+CXXSRCS := $(wildcard $(CXXSRCS))
+MAINSRC := $(wildcard $(MAINSRC))
+NOEXPORTSRCS = $(ASRCS)$(CSRCS)$(CXXSRCS)$(MAINSRC)
+
+ifneq ($(NOEXPORTSRCS),)
+BIN := $(APPDIR)/staging/libframework.a
+endif
+
 include $(APPDIR)/Application.mk
