@@ -235,7 +235,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
                 baterr("ioctl(VOLTAGE) err:%d\n", ret);
                 return ret;
             }
-
+            data->voltage = manager->c_data.voltage;
             mask &= ~BATTERY_VOLTAGE_CHANGED;
         } else if (mask & BATTERY_CURRENT_CHANGED) {
             ret = ioctl(sfd, BATIOC_CURRENT,
