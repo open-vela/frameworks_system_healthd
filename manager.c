@@ -317,11 +317,12 @@ static void poll_charge(struct charge_manager* manager, struct battery_state* da
                 if (orb_publish_auto(ORB_ID(battery_state), NULL, data, NULL) < 0) {
                     baterr("battery state publish err\n");
                 }
+
+                baterr("healthd state:%d level:%d temp:%d\n", data->state, data->level, data->temp);
             }
         }
     }
 }
-
 
 void init_charge_uorb_data(struct battery_state* data)
 {
