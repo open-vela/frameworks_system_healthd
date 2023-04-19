@@ -16,8 +16,6 @@
 
 include $(APPDIR)/Make.defs
 
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/external/uORB}
-
 MAINSRC   = manager.c
 PROGNAME  = healthd
 
