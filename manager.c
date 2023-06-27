@@ -291,7 +291,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             mask &= ~BATTERY_COULOMBS_CHANGED;
             continue;
         } else {
-            baterr("read mask err:%ld\n", mask);
+            baterr("read mask err:%" PRIi32 "d\n", mask);
             ret = -ENOTTY;
         }
     }
