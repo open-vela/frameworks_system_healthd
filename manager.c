@@ -200,8 +200,8 @@ static int read_charge_data(int sfd, struct battery_state* data,
                 return ret;
             }
 
-            if (manager->c_data.status == 0 || manager->c_data.status == 1) {
-                data->state = manager->c_data.status;
+            if (manager->c_data.status == BATTERY_CHARGING) {
+                data->state = 1;
             } else {
                 data->state = 0;
             }
