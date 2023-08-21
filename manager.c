@@ -51,8 +51,8 @@ struct charge_data {
     int status;
     int health;
     int online;
-    int voltage;
-    int current;
+    b16_t voltage;
+    b16_t current;
     b16_t capacity;
     int cellvoltage;
     b8_t temp;
@@ -291,7 +291,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
             mask &= ~BATTERY_COULOMBS_CHANGED;
             continue;
         } else {
-            baterr("read mask err:%" PRIi32 "d\n", mask);
+            baterr("read mask err:%" PRIi32 "\n", mask);
             ret = -ENOTTY;
         }
     }
