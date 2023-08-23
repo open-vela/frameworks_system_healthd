@@ -318,7 +318,7 @@ static void poll_charge(struct charge_manager* manager, struct battery_state* da
                     baterr("battery state publish err\n");
                 }
 
-                baterr("healthd state:%d level:%d temp:%d\n", data->state, data->level, data->temp);
+                baterr("healthd state:%d level:%d temp:%d online:%d\n", data->state, data->level, data->temp, data->online);
             }
         }
     }
