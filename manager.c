@@ -225,7 +225,7 @@ static int read_charge_data(int sfd, struct battery_state* data,
                 baterr("ioctl(ONLINE) err:%d\n", ret);
                 return ret;
             }
-
+            data->online = manager->c_data.online;
             mask &= ~BATTERY_ONLINE_CHANGED;
             continue;
         } else if (mask & BATTERY_VOLTAGE_CHANGED) {
