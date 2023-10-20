@@ -164,11 +164,15 @@ static int scan_charge(struct charge_manager* manager, const char* dirname)
     while (ret--) {
         strcpy(filename, dirlist[ret]->d_name);
         open_charge(manager, devname);
+        free(dirlist[ret]);
     }
-
+    free(dirlist);
     return 0;
 
 poll_err:
+    while (ret--) {
+        free(dirlist[ret]);
+    }
     free(dirlist);
     return ret;
 }
