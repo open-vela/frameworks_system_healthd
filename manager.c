@@ -154,6 +154,9 @@ static int scan_charge(struct charge_manager* manager, const char* dirname)
 
     manager->epollfd = epoll_create1(EPOLL_CLOEXEC);
     if (manager->epollfd == -1) {
+        while (ret--) {
+            free(dirlist[ret]);
+        }
         ret = -errno;
         goto poll_err;
     }
@@ -170,9 +173,6 @@ static int scan_charge(struct charge_manager* manager, const char* dirname)
     return 0;
 
 poll_err:
-    while (ret--) {
-        free(dirlist[ret]);
-    }
     free(dirlist);
     return ret;
 }
