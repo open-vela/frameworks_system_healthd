@@ -340,7 +340,7 @@ void init_charge_uorb_data(struct battery_state* data)
 int main(int argc, char* argv[])
 {
     struct charge_manager manager = {};
-    struct battery_state data;
+    struct battery_state data = {};
     int ret;
 
     g_should_exit = false;
