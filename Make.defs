@@ -15,5 +15,5 @@
 #
 
 ifneq ($(CONFIG_HEALTHD),)
-CONFIGURED_APPS += $(APPDIR)/frameworks/healthd/
+CONFIGURED_APPS += $(APPDIR)/frameworks/system/healthd/
 endif
