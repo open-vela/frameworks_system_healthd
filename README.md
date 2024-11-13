@@ -1,4 +1,7 @@
 # Overview of Healthd
+
+\[ English | [简体中文](README_zh-cn.md) \]
+
 Vela healthd is a module that publishes battery charging status, charging voltage and current, battery temperature, and other health monitoring data via uORB. The Healthd module primarily senses changes by polling all device nodes under the /dev/charge/ directory, detects changes in the mask, and publishes the changed parameters through uORB.
 
 ## Battery Chip Driver
