@@ -1,4 +1,7 @@
 # Healthd 概述
+
+\[ [English](README.md) | 简体中文 \]
+
 Vela healthd 是通过uORB发布电池充电状态，充电电压电流，电池温度等健康检测的模块。Healthd模块主要是通过poll系统下/dev/charge/目录下的所有设备节点，感知mask的变化，获取变化参数通过uORB发布出去。
 
 ## 电池芯片驱动
