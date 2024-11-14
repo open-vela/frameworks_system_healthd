@@ -29,5 +29,5 @@ The battery chip mainly registers two types of device nodes:：
 1. Charger device nodes, which primarily monitor changes in battery charging presence, charging status, charging voltage, charging current, battery temperature, etc.
 2. Gauge device nodes, which mainly monitor changes in battery presence, battery level, battery temperature, etc.
 
-# Healthd Code Path
+## Healthd Code Path
 Path: frameworks/system/healthd
