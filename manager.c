@@ -51,11 +51,11 @@ struct charge_data {
     int status;
     int health;
     int online;
-    b16_t voltage;
-    b16_t current;
-    b16_t capacity;
+    int voltage;
+    int current;
+    int capacity;
     int cellvoltage;
-    b8_t temp;
+    int temp;
     int coulombs;
 };
 
