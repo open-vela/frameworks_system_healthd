@@ -194,111 +194,88 @@ static int read_charge_data(int sfd, struct battery_state* data,
         return ret;
     }
 
-    while (mask != 0) {
-
-        if (mask & BATTERY_STATE_CHANGED) {
-            ret = ioctl(sfd, BATIOC_STATE,
-                (unsigned long)(uintptr_t)&manager->c_data.status);
-            if (ret < 0) {
-                baterr("ioctl(STATE) err:%d\n", ret);
-                return ret;
-            }
-
-            if (manager->c_data.status == BATTERY_CHARGING || manager->c_data.status == BATTERY_FULL) {
-                data->state = 1;
-            } else if (manager->c_data.status == BATTERY_FAULT) {
-                data->state = 2;
-            } else {
-                data->state = 0;
-            }
-
-            mask &= ~BATTERY_STATE_CHANGED;
-            continue;
-        } else if (mask & BATTERY_HEALTH_CHANGED) {
-            ret = ioctl(sfd, BATIOC_HEALTH,
-                (unsigned long)(uintptr_t)&manager->c_data.health);
-            if (ret < 0) {
-                baterr("ioctl(HEALTH) err:%d\n", ret);
-                return ret;
-            }
-
-            mask &= ~BATTERY_HEALTH_CHANGED;
-            continue;
-        } else if (mask & BATTERY_ONLINE_CHANGED) {
-            ret = ioctl(sfd, BATIOC_ONLINE,
-                (unsigned long)(uintptr_t)&manager->c_data.online);
-            if (ret < 0) {
-                baterr("ioctl(ONLINE) err:%d\n", ret);
-                return ret;
-            }
-            data->online = manager->c_data.online;
-            mask &= ~BATTERY_ONLINE_CHANGED;
-            continue;
-        } else if (mask & BATTERY_VOLTAGE_CHANGED) {
-            ret = ioctl(sfd, BATIOC_VOLTAGE,
-                (unsigned long)(uintptr_t)&manager->c_data.voltage);
-            if (ret < 0) {
-                baterr("ioctl(VOLTAGE) err:%d\n", ret);
-                return ret;
-            }
-            data->voltage = manager->c_data.voltage;
-            mask &= ~BATTERY_VOLTAGE_CHANGED;
-        } else if (mask & BATTERY_CURRENT_CHANGED) {
-            ret = ioctl(sfd, BATIOC_CURRENT,
-                (unsigned long)(uintptr_t)&manager->c_data.current);
-            if (ret < 0) {
-                baterr("ioctl(CURRENT) err:%d\n", ret);
-                return ret;
-            }
-
-            data->curr = manager->c_data.current;
-            mask &= ~BATTERY_CURRENT_CHANGED;
-            continue;
-        } else if (mask & BATTERY_CAPACITY_CHANGED) {
-            ret = ioctl(sfd, BATIOC_CAPACITY,
-                (unsigned long)(uintptr_t)&manager->c_data.capacity);
-            if (ret < 0) {
-                baterr("ioctl(CAPACITY) err:%d\n", ret);
-                return ret;
-            }
-
-            data->level = manager->c_data.capacity;
-            mask &= ~BATTERY_CAPACITY_CHANGED;
-            continue;
-        } else if (mask & BATTERY_CELLVOLTAGE_CHANGED) {
-            ret = ioctl(sfd, BATIOC_CELLVOLTAGE,
-                (unsigned long)(uintptr_t)&manager->c_data.cellvoltage);
-            if (ret < 0) {
-                baterr("ioctl(CELLVOLTAGE) err:%d\n", ret);
-                return ret;
-            }
-
-            mask &= ~BATTERY_CELLVOLTAGE_CHANGED;
-            continue;
-        } else if (mask & BATTERY_TEMPERATURE_CHANGED) {
-            ret = ioctl(sfd, BATIOC_TEMPERATURE,
-                (unsigned long)(uintptr_t)&manager->c_data.temp);
-            if (ret < 0) {
-                baterr("ioctl(TEMPERATURE) err:%d\n", ret);
-                return ret;
-            }
-
-            data->temp = manager->c_data.temp;
-            mask &= ~BATTERY_TEMPERATURE_CHANGED;
-            continue;
-        } else if (mask & BATTERY_COULOMBS_CHANGED) {
-            ret = ioctl(sfd, BATIOC_COULOMBS,
-                (unsigned long)(uintptr_t)&manager->c_data.coulombs);
-            if (ret < 0) {
-                baterr("ioctl(COULOMBS) err:%d\n", ret);
-                return ret;
-            }
-
-            mask &= ~BATTERY_COULOMBS_CHANGED;
-            continue;
+    if (mask & BATTERY_STATE_CHANGED) {
+        ret = ioctl(sfd, BATIOC_STATE,
+            (unsigned long)(uintptr_t)&manager->c_data.status);
+        if (ret < 0) {
+            baterr("ioctl(STATE) err:%d\n", ret);
+            return ret;
+        }
+        if (manager->c_data.status == BATTERY_CHARGING || manager->c_data.status == BATTERY_FULL) {
+            data->state = 1;
+        } else if (manager->c_data.status == BATTERY_FAULT) {
+            data->state = 2;
         } else {
-            baterr("read mask err:%" PRIi32 "\n", mask);
-            ret = -ENOTTY;
+            data->state = 0;
+        }
+    }
+    if (mask & BATTERY_HEALTH_CHANGED) {
+        ret = ioctl(sfd, BATIOC_HEALTH,
+            (unsigned long)(uintptr_t)&manager->c_data.health);
+        if (ret < 0) {
+            baterr("ioctl(HEALTH) err:%d\n", ret);
+            return ret;
+        }
+    }
+    if (mask & BATTERY_ONLINE_CHANGED) {
+        ret = ioctl(sfd, BATIOC_ONLINE,
+            (unsigned long)(uintptr_t)&manager->c_data.online);
+        if (ret < 0) {
+            baterr("ioctl(ONLINE) err:%d\n", ret);
+            return ret;
+        }
+        data->online = manager->c_data.online;
+    }
+    if (mask & BATTERY_VOLTAGE_CHANGED) {
+        ret = ioctl(sfd, BATIOC_VOLTAGE,
+            (unsigned long)(uintptr_t)&manager->c_data.voltage);
+        if (ret < 0) {
+            baterr("ioctl(VOLTAGE) err:%d\n", ret);
+            return ret;
+        }
+        data->voltage = manager->c_data.voltage;
+    }
+    if (mask & BATTERY_CURRENT_CHANGED) {
+        ret = ioctl(sfd, BATIOC_CURRENT,
+            (unsigned long)(uintptr_t)&manager->c_data.current);
+        if (ret < 0) {
+            baterr("ioctl(CURRENT) err:%d\n", ret);
+            return ret;
+        }
+        data->curr = manager->c_data.current;
+    }
+    if (mask & BATTERY_CAPACITY_CHANGED) {
+        ret = ioctl(sfd, BATIOC_CAPACITY,
+            (unsigned long)(uintptr_t)&manager->c_data.capacity);
+        if (ret < 0) {
+            baterr("ioctl(CAPACITY) err:%d\n", ret);
+            return ret;
+        }
+        data->level = manager->c_data.capacity;
+    }
+    if (mask & BATTERY_CELLVOLTAGE_CHANGED) {
+        ret = ioctl(sfd, BATIOC_CELLVOLTAGE,
+            (unsigned long)(uintptr_t)&manager->c_data.cellvoltage);
+        if (ret < 0) {
+            baterr("ioctl(CELLVOLTAGE) err:%d\n", ret);
+            return ret;
+        }
+    }
+    if (mask & BATTERY_TEMPERATURE_CHANGED) {
+        ret = ioctl(sfd, BATIOC_TEMPERATURE,
+            (unsigned long)(uintptr_t)&manager->c_data.temp);
+        if (ret < 0) {
+            baterr("ioctl(TEMPERATURE) err:%d\n", ret);
+            return ret;
+        }
+        data->temp = manager->c_data.temp;
+    }
+    if (mask & BATTERY_COULOMBS_CHANGED) {
+        ret = ioctl(sfd, BATIOC_COULOMBS,
+            (unsigned long)(uintptr_t)&manager->c_data.coulombs);
+        if (ret < 0) {
+            baterr("ioctl(COULOMBS) err:%d\n", ret);
+            return ret;
         }
     }
 
