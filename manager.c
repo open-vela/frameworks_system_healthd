@@ -282,6 +282,24 @@ static int read_charge_data(int sfd, struct battery_state* data,
     return ret;
 }
 
+static void healthd_battery_update(struct charge_manager* manager, struct battery_state* data)
+{
+    int idx;
+    int ret;
+
+    for (idx = 0; idx < manager->cnt; idx++) {
+        ret = ioctl(manager->sfd[idx], BATIOC_CAPACITY, (unsigned long)(uintptr_t)&manager->c_data.capacity);
+        if (ret == 0) {
+            data->level = manager->c_data.capacity;
+        }
+
+        ret = ioctl(manager->sfd[idx], BATIOC_TEMPERATURE, (unsigned long)(uintptr_t)&manager->c_data.temp);
+        if (ret == 0) {
+            data->temp = manager->c_data.temp;
+        }
+    }
+}
+
 static void poll_charge(struct charge_manager* manager, struct battery_state* data)
 {
     struct epoll_event events[manager->cnt];
@@ -307,11 +325,13 @@ static void poll_charge(struct charge_manager* manager, struct battery_state* da
     }
 }
 
-void init_charge_uorb_data(struct battery_state* data)
+void init_charge_uorb_data(struct charge_manager* manager, struct battery_state* data)
 {
     data->state = 0;
     data->level = 0;
     data->temp = 250;
+
+    healthd_battery_update(manager, data);
 }
 
 int main(int argc, char* argv[])
@@ -326,13 +346,13 @@ int main(int argc, char* argv[])
         return -errno;
     }
 
-    init_charge_uorb_data(&data);
-
     /* Scan dir "/dev/charge/" and do the following */
 
     ret = scan_charge(&manager, CHARGE_DIR_PATH);
     if (ret < 0)
         return ret;
+
+    init_charge_uorb_data(&manager, &data);
 
     /* Monitor all fd, read and process event */
 
